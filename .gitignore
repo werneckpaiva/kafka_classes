@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+docker_3_nodes/kafka-data1/
+docker_3_nodes/kafka-data2/
+docker_3_nodes/kafka-data3/
