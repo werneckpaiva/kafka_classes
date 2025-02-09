@@ -1,0 +1,71 @@
+services:
+  kafka1:
+    image: apache/kafka:latest
+    hostname: kafka1
+    container_name: kafka1
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.101
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.20.0.101:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+      CLUSTER_ID: 'fEhAzqLPS8aklU4iXPqqbA'
+      KAFKA_LOG_DIRS: /tmp/kafka/data
+    volumes:
+      - ./kafka-data1:/tmp/kafka/data
+
+  kafka2:
+    image: apache/kafka:latest
+    hostname: kafka2
+    container_name: kafka2
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.102
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.20.0.102:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+      CLUSTER_ID: 'fEhAzqLPS8aklU4iXPqqbA'
+      KAFKA_LOG_DIRS: /tmp/kafka/data
+    volumes:
+      - ./kafka-data2:/tmp/kafka/data
+
+  kafka3:
+    image: apache/kafka:latest
+    hostname: kafka3
+    container_name: kafka3
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.103
+    environment:
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.20.0.103:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+      CLUSTER_ID: 'fEhAzqLPS8aklU4iXPqqbA'
+      KAFKA_LOG_DIRS: /tmp/kafka/data
+    volumes:
+      - ./kafka-data3:/tmp/kafka/data
+
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
