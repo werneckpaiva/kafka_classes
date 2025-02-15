@@ -38,7 +38,7 @@ services:
       my_network:
         ipv4_address: 172.20.0.5
     environment:
-      POSTGRES_USER: ricardo
+      POSTGRES_USER: my_user
       POSTGRES_PASSWORD: abcd1234
       POSTGRES_DB: kafka_example
     ports:
