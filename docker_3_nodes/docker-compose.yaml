@@ -64,7 +64,7 @@ services:
 
 networks:
   my_network:
-    driver: bridge
+    name: kafka-network
     ipam:
       config:
         - subnet: 172.20.0.0/16
