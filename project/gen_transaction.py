@@ -127,19 +127,19 @@ class TransactionGenerator:
                 self._transactions_queue.put(tx)
 
     def generate_transactions(self):
-        # # Valid transactions
-        # threading.Thread(target=self.valid_transactions_thread,
-        #                  daemon=True).start()
+        # Valid transactions
+        threading.Thread(target=self.valid_transactions_thread,
+                         daemon=True).start()
 
-        # # Fraudulent thread: High frequency
-        # threading.Thread(target=self.fraudulent_transactions_thread,
-        #                  args=(self.generate_high_frequency_fraudulent_transactions,),
-        #                  daemon=True).start()
+        # Fraudulent thread: High frequency
+        threading.Thread(target=self.fraudulent_transactions_thread,
+                         args=(self.generate_high_frequency_fraudulent_transactions,),
+                         daemon=True).start()
 
-        # # Fraudulent thread: High value
-        # threading.Thread(target=self.fraudulent_transactions_thread,
-        #                  args=(self.generate_high_value_fraudulent_transactions,),
-        #                  daemon=True).start()
+        # Fraudulent thread: High value
+        threading.Thread(target=self.fraudulent_transactions_thread,
+                         args=(self.generate_high_value_fraudulent_transactions,),
+                         daemon=True).start()
 
         # # Fraudulent transactions - Different Country
         threading.Thread(target=self.fraudulent_transactions_thread,
