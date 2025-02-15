@@ -1,0 +1,52 @@
+services:
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:latest
+    hostname: kafka-connect
+    container_name: kafka-connect
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.10
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: 172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092
+      CONNECT_REST_ADVERTISED_PORT: 8083
+      CONNECT_REST_PORT: 8083
+      CONNECT_LISTENERS: http://0.0.0.0:8083
+      CONNECT_GROUP_ID: connect-cluster
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "3"
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "3"
+      CONNECT_STATUS_STORAGE_TOPIC: connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "3"
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/opt/kafka/connectors"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+    volumes:
+      - ./connectors:/opt/kafka/connectors
+
+  postgres:
+    image: postgres:latest
+    container_name: my-postgres
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.5
+    environment:
+      POSTGRES_USER: ricardo
+      POSTGRES_PASSWORD: abcd1234
+      POSTGRES_DB: kafka_example
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+networks:
+  my_network:
+    name: kafka-network
+    external: true  # Ensures it's the same network as Kafka
