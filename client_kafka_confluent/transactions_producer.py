@@ -7,9 +7,11 @@ topic="playground1"
 producer_config = {
     'bootstrap.servers': '172.20.0.101:9092',
     'transactional.id': f'produtor-tx-{uuid.uuid4()}',  # ID único!
-    'enable.idempotence': True  # Obrigatório para transações
+    'enable.idempotence': True,  # Obrigatório para transações
+    "acks": "all"
 }
 producer = Producer(producer_config)
+
 producer.init_transactions()
 
 try:

@@ -1,4 +1,4 @@
-from confluent_kafka import Consumer, KafkaError, KafkaException
+from confluent_kafka import Consumer
 
 # Configuração do consumidor
 consumer = Consumer({
@@ -16,8 +16,9 @@ try:
         if msg.error():
             print(str(msg.error()))
         else:
+            key = msg.key().decode("utf-8") if msg.key() else None
             print(f'Tópico: {msg.topic()}, Partição: {msg.partition()}, Offset: {msg.offset()}, '
-                  f'Chave: {msg.key().decode("utf-8")}, Valor: {msg.value().decode("utf-8")}')
+                  f'Chave: {key}, Valor: {msg.value().decode("utf-8")}')
 except KeyboardInterrupt:
     print('Encerrando consumidor...')
 finally:
