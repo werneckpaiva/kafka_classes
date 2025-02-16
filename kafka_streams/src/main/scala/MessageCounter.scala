@@ -18,6 +18,9 @@ object MessageCounter {
     props.put(ConsumerConfig.GROUP_ID_CONFIG, "message-count-group")
     props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass.getName)
     props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass.getName)
+    // Set the number of stream threads
+    props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 4);
+
 
     // Configuração de Kafka Streams
     val builder = new StreamsBuilder()
@@ -39,7 +42,7 @@ object MessageCounter {
     val outputStream: KStream[String, String] = messageCounts.toStream.map { (windowedKey, count) =>
       val key = windowedKey.key()
       val windowTime = formatter.format(Instant.ofEpochMilli(windowedKey.window().start()))
-      KeyValue.pair(key, s"{\"window\": $windowTime, \"key\": \"$key\", \"count\": $count}")
+      KeyValue.pair(key, s"{\"window\": \"$windowTime\", \"key\": \"$key\", \"count\": $count}")
     }
 
     // Enviando o resultado para um tópico de saída
