@@ -4,7 +4,7 @@ import random
 
 brokers=[]
 
-topic="test_ricardo"
+topic="random-numbers"
 
 producer = Producer({
     'bootstrap.servers': '172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092',
@@ -22,7 +22,7 @@ try:
     print(f"Producing messages to topic {topic}")
     # Continuously send messages
     while True:
-        key = random.randint(1, 50)
+        key = random.randint(1, 5)
         # Generate a random value between 1 and 1 billion
         value = random.randint(1, 1_000_000_000)
 

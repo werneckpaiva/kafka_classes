@@ -1,0 +1,64 @@
+plugins {
+    id 'scala'          // Plugin para Scala
+    id 'java'           // Plugin para Java
+    id 'application'    // Plugin para rodar o código
+    id 'com.github.johnrengelman.shadow' version '8.1.1' // Use a more recent version
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Kafka Streams
+    implementation 'org.apache.kafka:kafka-streams:3.3.0'
+    implementation 'org.apache.kafka:kafka-clients:3.3.0'
+
+    // Scala
+    implementation 'org.scala-lang:scala-library:2.13.8'
+
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+}
+
+application {
+    // A classe principal que vai ser executada
+    mainClassName = 'MessageCounter'
+}
+
+sourceSets {
+    main {
+        scala {
+            srcDirs = ['src/main/scala']
+        }
+    }
+}
+
+compileScala {
+    scalaCompileOptions.additionalParameters = ['-Xsource:3']
+}
+
+// Shadow Jar Configuration
+shadowJar {
+    archiveBaseName.set('kafka-streams-app') // Name of the generated JAR
+    archiveClassifier.set('')      // No classifier (removes the '-all')
+    archiveVersion.set('')         // No version in the name
+
+    // Merge ServiceLoader files (important for Kafka Streams)
+    mergeServiceFiles()
+
+    // Exclude signatures (sometimes causes issues)
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+// Make the 'build' task depend on 'shadowJar'
+build.dependsOn shadowJar
+
+run {
+    args = []
+}
