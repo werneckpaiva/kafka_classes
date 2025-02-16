@@ -1,1 +1,6 @@
 confluent-kafka
+confluent-kafka[avro]
+confluent-kafka[jsonschema]
+fastavro
+referencing
+jsonschema
