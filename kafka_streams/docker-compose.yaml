@@ -1,0 +1,42 @@
+services:
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    hostname: ksqldb-schema-registry
+    container_name: ksqldb-schema-registry
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.45
+    ports:
+      - "18081:18081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:18081
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 3
+
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:latest
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.50
+    depends_on:
+      - schema-registry
+    ports:
+      - "8088:8088"
+    environment:
+      KSQL_HOST_NAME: ksqldb-server
+      KSQL_BOOTSTRAP_SERVERS: 72.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://172.20.0.45:18081
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_STREAMS_REPLICATION_FACTOR: 3
+      KSQL_KSQL_STREAMS_NUM_PARTITIONS: 4
+      KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: 'earliest'
+
+networks:
+  my_network:
+    name: kafka-network
+    external: true
