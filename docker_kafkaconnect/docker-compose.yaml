@@ -15,7 +15,7 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.5.0
+    image: confluentinc/cp-schema-registry:latest
     hostname: schema-registry
     container_name: schema-registry
     networks:
