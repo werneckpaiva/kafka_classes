@@ -1,4 +1,34 @@
 services:
+  postgres:
+    image: postgres:latest
+    container_name: my-postgres
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.5
+    environment:
+      POSTGRES_USER: my_user
+      POSTGRES_PASSWORD: abcd1234
+      POSTGRES_DB: kafka_example
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    hostname: schema-registry
+    container_name: schema-registry
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 3
+
   kafka-connect:
     image: confluentinc/cp-kafka-connect:latest
     hostname: kafka-connect
@@ -8,6 +38,7 @@ services:
         ipv4_address: 172.20.0.10
     depends_on:
       - postgres
+      - schema-registry
     ports:
       - "8083:8083"
     environment:
@@ -30,21 +61,6 @@ services:
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
     volumes:
       - ./connectors:/opt/kafka/connectors
-
-  postgres:
-    image: postgres:latest
-    container_name: my-postgres
-    networks:
-      my_network:
-        ipv4_address: 172.20.0.5
-    environment:
-      POSTGRES_USER: my_user
-      POSTGRES_PASSWORD: abcd1234
-      POSTGRES_DB: kafka_example
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
 
 networks:
   my_network:
