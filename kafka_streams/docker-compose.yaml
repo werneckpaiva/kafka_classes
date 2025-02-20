@@ -1,5 +1,5 @@
 services:
-  schema-registry:
+  ksqldb-schema-registry:
     image: confluentinc/cp-schema-registry:latest
     hostname: ksqldb-schema-registry
     container_name: ksqldb-schema-registry
@@ -22,7 +22,7 @@ services:
       my_network:
         ipv4_address: 172.20.0.50
     depends_on:
-      - schema-registry
+      - ksqldb-schema-registry
     ports:
       - "8088:8088"
     environment:
