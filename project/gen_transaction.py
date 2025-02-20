@@ -2,8 +2,9 @@ import queue
 import random
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional
+import json
 
 
 @dataclass
@@ -16,6 +17,7 @@ class Transaction:
     value: float
     location_id: int
     country: str
+
 
 
 class TransactionGenerator:
@@ -152,13 +154,18 @@ class TransactionGenerator:
             yield transaction
             self._transactions_queue.task_done()
 
-
+import json
 if __name__ == "__main__":
     transaction_generator = TransactionGenerator(trans_per_sec=10)
     count = 0
     try:
         for tx in transaction_generator.generate_transactions():
             count += 1
-            print(tx)
+            # Converts Transaction object to Python dict
+            tx_dict = asdict(tx)
+            # Converts a dict to json
+            tx_json = json.dumps(tx_dict)
+            print(tx_json)
+
     except KeyboardInterrupt:
         print(f"{count} messages generated.")
