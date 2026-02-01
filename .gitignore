@@ -179,3 +179,5 @@ kafka_streams/gradle/
 gradlew
 gradlew.bat
 .gradle
+
+kafka_streams/bin/
