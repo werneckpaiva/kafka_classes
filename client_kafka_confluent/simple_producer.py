@@ -15,16 +15,7 @@ producer = Producer({
 })
 
 # Envio de mensagem (assíncrono)
-producer.produce('playground1', value=f'Minha mensagem {datetime.now()}', callback=delivery_report)
+producer.produce('test-ricardo', value=f'Minha mensagem {datetime.now()}', callback=delivery_report)
 
 # Garante que mensagens do buffer sejam enviadas
 producer.flush()
-
-
-
-
-
-
-
-
-
