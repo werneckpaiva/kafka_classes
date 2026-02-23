@@ -2,6 +2,11 @@
 
 O `kafkacat` (agora chamado de `kcat`) é uma ferramenta de linha de comando versátil para interagir com o Kafka, permitindo produzir e consumir mensagens, além de verificar metadados.
 
+## Rodando o Kafkacat via docker (não precisa instalar)
+```bash
+docker run -it --rm --network kafka-network edenhill/kcat:1.7.1 -b "172.20.0.101:9092" -L
+```
+
 ## 1. Listando Metadados (List Mode)
 
 O modo `-L` exibe informações sobre o cluster, brokers, tópicos e partições.
