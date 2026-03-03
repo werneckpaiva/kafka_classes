@@ -173,6 +173,7 @@ cython_debug/
 docker_3_nodes/kafka-data*/
 
 docker_kafkaconnect/postgres-data
+docker_kafkaconnect/redis-data/
 
 kafka_streams/build/
 kafka_streams/gradle/
