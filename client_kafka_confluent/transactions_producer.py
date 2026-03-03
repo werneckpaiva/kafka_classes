@@ -6,7 +6,7 @@ topic="playground1"
 # --- Configuração do Produtor ---
 producer_config = {
     'bootstrap.servers': '172.20.0.101:9092',
-    'transactional.id': f'produtor-tx-{uuid.uuid4()}',  # ID único!
+    'transactional.id': 'produtor-tx-1',  # ID único!
     'enable.idempotence': True,  # Obrigatório para transações
     "acks": "all"
 }

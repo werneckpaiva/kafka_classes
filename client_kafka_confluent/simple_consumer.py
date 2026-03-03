@@ -2,7 +2,7 @@ from confluent_kafka import Consumer
 
 # Configuração do consumidor
 consumer = Consumer({
-    'bootstrap.servers': '172.20.0.101:9092',
+    'bootstrap.servers': '172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092',
     'group.id': 'meu-grupo-consumidor2',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': True,

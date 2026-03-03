@@ -4,7 +4,7 @@ topic="playground1"
 
 # --- Configuração do Consumidor ---
 consumer_config = {
-    'bootstrap.servers': '172.20.0.101:9092',
+    'bootstrap.servers': '172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092',
     'group.id': 'meu-grupo-consumidor',
     'auto.offset.reset': 'latest',
     'enable.auto.commit': False,
