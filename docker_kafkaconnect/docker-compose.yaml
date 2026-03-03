@@ -29,6 +29,17 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 3
 
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.6
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+
   kafka-connect:
     image: confluentinc/cp-kafka-connect:latest
     hostname: kafka-connect
@@ -38,6 +49,7 @@ services:
         ipv4_address: 172.20.0.10
     depends_on:
       - postgres
+      - redis
       - schema-registry
     ports:
       - "8083:8083"
