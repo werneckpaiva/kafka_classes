@@ -175,6 +175,8 @@ docker_3_nodes/kafka-data*/
 docker_kafkaconnect/postgres-data
 docker_kafkaconnect/redis-data/
 
+docker_4_nodes_with_monitoring/kafka-data*/
+
 kafka_streams/build/
 kafka_streams/gradle/
 gradlew
