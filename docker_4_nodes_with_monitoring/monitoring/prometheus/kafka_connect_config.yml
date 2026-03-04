@@ -1,0 +1,37 @@
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+
+rules:
+  # kafka.connect:type=connect-worker-metrics,connector=(.+)
+  - pattern: "kafka.connect<type=connect-worker-metrics, connector=(.+)><>([^:]+)"
+    name: "kafka_connect_connect_worker_metrics_connector_$2"
+    labels:
+      connector: "$1"
+
+  # kafka.connect:type=connector-metrics,connector=(.+)
+  - pattern: "kafka.connect<type=connector-metrics, connector=(.+)><>status: ([^:]+)"
+    name: "kafka_connect_connector_metrics"
+    value: 1
+    labels:
+      connector: "$1"
+      status: "$2"
+
+  # kafka.connect:type=connector-task-metrics,connector=(.+),task=(.+)
+  - pattern: "kafka.connect<type=connector-task-metrics, connector=(.+), task=(.+)><>([^:]+)"
+    name: "kafka_connect_connector_task_metrics_$3"
+    labels:
+      connector: "$1"
+      task: "$2"
+
+  # Generic rule for kafka.connect
+  - pattern: "kafka.connect<type=(.+)><>(.+): (.+)"
+    name: "kafka_connect_$1_$2"
+
+  # Standard JVM metrics
+  - pattern: "java.lang<type=Memory><>(Heap|NonHeap)MemoryUsage"
+    name: "jvm_memory_bytes_$1"
+    cache: true
+
+  - pattern: "java.lang<type=OperatingSystem><>(ProcessCpuLoad|SystemCpuLoad)"
+    name: "process_cpu_seconds_total"
+    type: GAUGE

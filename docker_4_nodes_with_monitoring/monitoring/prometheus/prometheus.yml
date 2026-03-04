@@ -17,3 +17,14 @@ scrape_configs:
             - kafka2:8091
             - kafka3:8091
             - kafka4:8091
+          labels:
+            env: 'dev'
+
+    - job_name: 'kafka-connect'
+      scrape_interval: 5s
+      static_configs:
+        - targets:
+            - kafka-connect:8091
+          labels:
+            env: 'dev'
+            kafka_connect_cluster_id: 'connect-cluster'
