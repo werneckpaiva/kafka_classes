@@ -20,6 +20,10 @@ dependencies {
     // Scala
     implementation 'org.scala-lang:scala-library:2.13.8'
 
+    // JSON support
+    implementation 'com.fasterxml.jackson.module:jackson-module-scala_2.13:2.13.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+
     // Test dependencies
     testImplementation 'junit:junit:4.13.2'
 }

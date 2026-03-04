@@ -1,74 +1,78 @@
 # Usando o KSQLDB
 
 ## Acessando o KSQL
-```
-docker run --rm -it --network kafka-network confluentinc/ksqldb-cli:latest ksql http://ksqldb-server:8088
+```bash
+# Versão nativa para Apple Silicon (M1/M2/M3)
+docker run --rm -it --network kafka-network confluentinc/cp-ksqldb-cli:7.6.1 http://ksqldb-server:8088
 ```
 
-##Exibindo os tópicos
-```
+## Explorando o ambiente
+```sql
+-- Exibindo os tópicos
 show topics;
 ```
 
 ## Consumindo um tópico e exibindo na tela
-```
-print "meu-topico";
+```sql
+print "users";
 ```
 
 ## Criando um stream tipado
-Exemplo 1:
-```
+```sql
 CREATE STREAM users (
+    user_id VARCHAR KEY,
     name VARCHAR,
     age INT,
-    email VARCHAR)
+    email VARCHAR,
+    points INT)
 WITH (KAFKA_TOPIC='users', VALUE_FORMAT='JSON');
 ```
-Exemplo 2:
-```
-CREATE STREAM "random_numbers" (
-    num_key VARCHAR KEY,
-    num_value VARCHAR)
-WITH (KAFKA_TOPIC='random-numbers',
-      KEY_FORMAT = 'KAFKA',
-      VALUE_FORMAT='KAFKA');
 
-CREATE STREAM "random_numbers_avro" 
-WITH(VALUE_FORMAT='Avro') AS 
-    SELECT
-        num_key,
-        CAST(num_value AS BIGINT) as num_value
-    FROM "random_numbers";
-```
+## Criando agregações com Janela (Tumbling Window)
 
-
-## Criando uma agregação
-```
-CREATE TABLE AVERAGE_NUMBERS_BY_KEY AS
+Exemplo 1: Estatísticas Globais (a cada 20 segundos)
+```sql
+CREATE TABLE GLOBAL_STATS AS
 SELECT
-    num_key,
-    ROWTIME as window_start_time,
-    MAX(num_value) AS max_value,
-    MIN(num_value) AS min_value,
-    AVG(num_value) AS average_value,
-    COUNT(num_value) AS count_value
-FROM "random_numbers_avro"
-WINDOW TUMBLING (SIZE 10 SECONDS)
-GROUP BY num_key
+    'global' as stats_key,
+    COUNT(*) AS total_messages,
+    AVG(age) AS average_age,
+    AVG(points) AS average_points,
+    MAX(points) AS max_points
+FROM users
+WINDOW TUMBLING (SIZE 20 SECONDS)
+GROUP BY 'global'
 EMIT CHANGES;
 ```
 
-## Consultando uma tabela
-```
-SELECT * FROM AVERAGE_NUMBERS_BY_KEY;
+Exemplo 2: Média de pontos por Usuário (a cada 1 minuto)
+```sql
+CREATE TABLE USER_POINTS_STATS AS
+SELECT
+    user_id,
+    AVG(points) AS avg_points,
+    COUNT(*) AS updates_count
+FROM users
+WINDOW TUMBLING (SIZE 1 MINUTE)
+GROUP BY user_id
+EMIT CHANGES;
 ```
 
-# Excluindo um stream
-```
-DROP STREAM "meu_stream";
+## Consultando os resultados
+```sql
+SELECT * FROM GLOBAL_STATS EMIT CHANGES;
+SELECT * FROM USER_POINTS_STATS EMIT CHANGES;
 ```
 
-# Excluindo uma tabela
+# Limpeza (DCL)
+
+## Excluindo um stream
+```sql
+DROP STREAM users;
 ```
-DROP TABLE MY_TABLE_NAME;
+
+## Excluindo tabelas
+```sql
+DROP TABLE GLOBAL_STATS;
+DROP TABLE USER_POINTS_STATS;
 ```

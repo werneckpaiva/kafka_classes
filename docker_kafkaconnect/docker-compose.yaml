@@ -14,20 +14,6 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:latest
-    hostname: schema-registry
-    container_name: schema-registry
-    networks:
-      my_network:
-        ipv4_address: 172.20.0.20
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 3
 
   redis:
     image: redis:latest
@@ -50,7 +36,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - schema-registry
     ports:
       - "8083:8083"
     environment:

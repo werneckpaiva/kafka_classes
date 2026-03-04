@@ -1,5 +1,6 @@
 import random
 from time import sleep
+import hashlib
 
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.json_schema import JSONSerializer
@@ -25,7 +26,7 @@ from confluent_kafka import SerializingProducer, KafkaException
 #     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
 #     "key.converter.schemas.enable": "false",
 #     "value.converter": "io.confluent.connect.json.JsonSchemaConverter",
-#     "value.converter.schema.registry.url": "http://172.20.0.20:8081",
+#     "value.converter.schema.registry.url": "http://172.20.0.45:8081",
 #     "redis.keyspace": "users",
 #     "redis.type": "HASH",
 #     "errors.tolerance": "all"
@@ -41,7 +42,7 @@ from confluent_kafka import SerializingProducer, KafkaException
 
 
 # Schema Registry configuration
-schema_registry_conf = {'url': 'http://172.20.0.20:8081'}
+schema_registry_conf = {'url': 'http://172.20.0.45:8081'}
 schema_registry_client = SchemaRegistryClient(schema_registry_conf)
 
 # Define the JSON schema
@@ -51,29 +52,42 @@ schema_str = """
   "title": "User",
   "type": "object",
   "properties": {
+    "user_id": { "type": "string" },
     "name": { "type": "string" },
     "age": { "type": "integer", "minimum": 0, "maximum": 120 },
-    "email": { "type": "string" }
+    "email": { "type": "string" },
+    "points": { "type": "integer" }
   },
-  "required": ["name", "age", "email"]
+  "required": ["user_id", "name", "age", "email", "points"]
 }
 """
 
-def generate_contact() -> dict[str, any]:
+def generate_contact_points() -> dict[str, any]:
     first_name = random.choice([
-        "Alice", "Bob", "Charlie", "Diana", "Eve",
-        "Frank", "Grace", "Hank", "Ivy", "Jack"
+        "Adriano", "Bruno", "Caio", "Daniel", "Eduardo",
+        "Fabio", "Gabriel", "Heitor", "Igor", "Joao",
+        "Kleber", "Leonardo", "Marcelo", "Nelson", "Otavio",
+        "Paulo", "Queiroz", "Ricardo", "Samuel", "Tiago",
+        "Ulysses", "Vitor", "Wagner", "Xavier", "Yuri", "Zeca"
     ])
     last_name = random.choice([
-        "Smith", "Johnson", "Williams", "Brown", "Jones",
-        "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"
+        "Almeida", "Barbosa", "Costa", "Duarte", "Esteves",
+        "Freitas", "Gomes", "Henrique", "Ibrahim", "Jorge",
+        "Koury", "Lima", "Mendes", "Nunes", "Oliveira",
+        "Pereira", "Queiros", "Ribeiro", "Silva", "Teixeira",
+        "Uchoa", "Vieira", "Werneck", "Ximenes", "Yamada", "Zonta"
     ])
-    message = {
-        "name": f"{first_name} {last_name}",
-        "age": random.randint(10, 50),
-        "email": f"{first_name.lower()}.{last_name.lower()}@example.com"
+    name = f"{first_name} {last_name}"
+    user_id = hashlib.sha256(name.encode('utf-8')).hexdigest()[:12]
+    
+    contact_points = {
+        "user_id": user_id,
+        "name": name,
+        "age": random.randint(10, 60),
+        "email": f"{first_name.lower()}.{last_name.lower()}@example.com",
+        "points": random.randint(0, 100)
     }
-    return message
+    return contact_points
 
 json_serializer = JSONSerializer(schema_str, schema_registry_client)
 
@@ -91,18 +105,17 @@ producer = SerializingProducer({
     'value.serializer': json_serializer
 })
 
-count_messages = 0
 try:
     print(f"Producing messages to topic {topic}")
     while True:
         try:
-            contact = generate_contact()
-            producer.produce(topic=topic, key=str(count_messages), value=contact)
+            contact_points = generate_contact_points()
+            producer.produce(topic=topic, key=contact_points["user_id"].encode('utf-8'), value=contact_points)
         except KafkaException as e:
             print(f"Error sending message: {e}")
         except BufferError as e:
             producer.flush()
-        count_messages += 1
+        
         print(".", end='', flush=True)
 
         sleep(random.uniform(0, 1))
@@ -113,4 +126,4 @@ finally:
     # Send all pending messages
     producer.flush()
 
-print(f"{count_messages} messages sent to topic {topic}")
+print(f"Finished producing to topic {topic}")
