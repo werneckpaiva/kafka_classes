@@ -4,3 +4,5 @@ confluent-kafka[jsonschema]
 fastavro
 referencing
 jsonschema
+certifi
+orjson

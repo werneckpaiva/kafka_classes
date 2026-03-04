@@ -26,6 +26,13 @@ services:
   kafka-connect:
     image: confluentinc/cp-kafka-connect:latest
     container_name: kafka-connect
+    networks:
+      my_network:
+        ipv4_address: 172.20.0.10
+    depends_on:
+      - postgres
+      - redis
+      - schema-registry
     environment:
       CONNECT_BOOTSTRAP_SERVERS: "172.20.0.101:9092,172.20.0.102:9092,172.20.0.103:9092"
       CONNECT_REST_PORT: 8083
@@ -37,7 +44,7 @@ services:
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/opt/kafka/connectors"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/opt/kafka/connectors"
     volumes:
       - ./connectors:/opt/kafka/connectors
 ```
@@ -73,13 +80,13 @@ curl -X POST -H "Content-Type: application/json" --data '{
     "connector.class": "com.redis.kafka.connect.RedisSinkConnector",
     "tasks.max": "2",
     "topics": "test-redis-connector",
-    "redis.uri": "redis://localhost:6379",
+    "redis.uri": "redis://172.20.0.6:6379",
     "redis.type": "JSON",
     "redis.keyspace": "user:contact",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": "true"
   }
-}' http://localhost:8083/connectors
+}' http://172.20.0.10:8083/connectors
 ```
 
 #### Configuração (HASH Mode)
@@ -90,13 +97,13 @@ curl -X POST -H "Content-Type: application/json" --data '{
     "connector.class": "com.redis.kafka.connect.RedisSinkConnector",
     "tasks.max": "2",
     "topics": "test-redis-connector",
-    "redis.uri": "redis://localhost:6379",
+    "redis.uri": "redis://172.20.0.6:6379",
     "redis.type": "HASH",
     "redis.keyspace": "user:contact",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": "true"
   }
-}' http://localhost:8083/connectors
+}' http://172.20.0.10:8083/connectors
 ```
 
 #### Alterando a configuração (ex: aumentar tasks)
@@ -105,12 +112,12 @@ curl -X PUT -H "Content-Type: application/json" --data '{
     "connector.class": "com.redis.kafka.connect.RedisSinkConnector",
     "tasks.max": "4",
     "topics": "test-redis-connector",
-    "redis.uri": "redis://localhost:6379",
+    "redis.uri": "redis://172.20.0.6:6379",
     "redis.type": "HASH",
     "redis.keyspace": "user:contact",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": "true"
-}' http://localhost:8083/connectors/redis-sink-hash/config
+}' http://172.20.0.10:8083/connectors/redis-sink-hash/config
 ```
 
 #### Verificando dados no Redis
@@ -149,7 +156,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": "true"
   }
-}' http://localhost:8083/connectors
+}' http://172.20.0.10:8083/connectors
 ```
 
 ---
@@ -165,7 +172,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "topics": "test-file",
     "file": "/tmp/output.txt"
   }
-}' http://localhost:8083/connectors
+}' http://172.20.0.10:8083/connectors
 ```
 
 ---
@@ -191,14 +198,14 @@ echo '1:{
     "name": "Ricardo",
     "email": "ricardo@example.com"
   }
-}' | kcat -P -b localhost:9092 -t test-redis-connector -K :
+}' | kcat -P -b 172.20.0.101:9092 -t test-redis-connector -K :
 ```
 
 Para enviar múltiplos dados via script:
 ```bash
 for i in {1..10}
 do
-cat <<EOF | tr -d '\n' | kcat -P -b localhost:9092 -t test-topic -K :
+cat <<EOF | tr -d '\n' | kcat -P -b 172.20.0.101:9092 -t test-topic -K :
 $i:{
   "schema": {
     "type": "struct",

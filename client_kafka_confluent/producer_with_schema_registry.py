@@ -6,7 +6,7 @@ from confluent_kafka.schema_registry.json_schema import JSONSerializer
 from confluent_kafka import SerializingProducer, KafkaException
 
 # Create the topic first!
-# ./kafka_2.13-3.9.0/bin/kafka-topics.sh --create \
+# ./kafka/bin/kafka-topics.sh --create \
 #   --bootstrap-server 172.20.0.101:9092 \
 #   --topic users \
 #   --partitions 4 \
@@ -16,30 +16,28 @@ from confluent_kafka import SerializingProducer, KafkaException
 
 # Kafka Connect config
 # curl -X POST -H "Content-Type: application/json" -d '{
-# "name": "postgres-users-sink",
+# "name": "redis-users-sink",
 # "config": {
-#     "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
-#     "connection.url": "jdbc:postgresql://172.20.0.5:5432/kafka_example",
-#     "connection.user": "my_user",
-#     "connection.password": "abcd1234",
+#     "connector.class": "com.redis.kafka.connect.RedisSinkConnector",
+#     "redis.uri": "redis://172.20.0.6:6379",
 #     "topics": "users",
-#     "insert.mode": "insert",
-#     "pk.mode": "none",
-#     "pk.fields": "id",
-#     "auto.create": "false",
-#     "auto.evolve": "false",
-#     "table.name.format": "users",
 #     "tasks.max": "2",
 #     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
 #     "key.converter.schemas.enable": "false",
 #     "value.converter": "io.confluent.connect.json.JsonSchemaConverter",
 #     "value.converter.schema.registry.url": "http://172.20.0.20:8081",
-#     "errors.tolerance": "all",
-#     "errors.deadletterqueue.topic.name": "my-connector-errors",
-#     "errors.deadletterqueue.topic.replication.factor": "3",
-#     "errors.deadletterqueue.context.headers.enable": "true"
+#     "redis.keyspace": "users",
+#     "redis.type": "HASH",
+#     "errors.tolerance": "all"
 # }
 # }' http://172.20.0.10:8083/connectors | jq .
+
+# Verificando os dados no Redis:
+# docker exec my-redis redis-cli KEYS "users:*"
+# docker exec my-redis redis-cli HGETALL "users:1"
+# docker exec my-redis redis-cli HGET "users:1" name
+# docker exec my-redis redis-cli HGET "users:1" age
+# docker exec my-redis redis-cli HGET "users:1" email
 
 
 # Schema Registry configuration
@@ -99,7 +97,7 @@ try:
     while True:
         try:
             contact = generate_contact()
-            producer.produce(topic=topic, value=contact)
+            producer.produce(topic=topic, key=str(count_messages), value=contact)
         except KafkaException as e:
             print(f"Error sending message: {e}")
         except BufferError as e:
